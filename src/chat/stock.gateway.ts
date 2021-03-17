@@ -1,8 +1,14 @@
-import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
+import {
+  ConnectedSocket,
+  MessageBody,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+} from '@nestjs/websockets';
 import { Inject } from '@nestjs/common';
 import { IChatServiceProvider } from '../primary-ports/chat.service.interface';
 import { IStockService } from '../primary-ports/stock.service.interface';
-import { Socket } from "socket.io";
+import { Socket } from 'socket.io';
 
 @WebSocketGateway()
 export class StockGateway {
@@ -10,13 +16,28 @@ export class StockGateway {
     @Inject(IChatServiceProvider) private stockService: IStockService,
   ) {}
   @WebSocketServer() server;
-  
+
   @SubscribeMessage('stock')
   async handleStockEvent(
-    @MessageBody() message: string,
-    @ConnectedSocket() client: Socket,
+    @MessageBody() stockName: string,
+    initValue: number,
+    currentValue: number,
+    description: string,
+    @ConnectedSocket() stock: Socket,
   ): Promise<void> {
-    const chatMessage = await this.stockService.newStock;
-    this.server.emit('newMessage', chatMessage);
+    try {
+      const stockClient = await this.stockService.newStock(
+        stock.id,
+        stockName,
+        initValue,
+        currentValue,
+        description,
+      );
+      const stockClients = await this.stockService.getStocks();
+      this.server.emit('stock', stockClient);
+      this.server.emit('stocks', stockClients);
+    } catch (e) {
+      stock.error(e.message);
+    }
   }
 }
