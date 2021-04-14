@@ -1,9 +1,15 @@
-import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Message } from './message.entity';
 
 @Entity()
 export class Client {
-  @PrimaryColumn({ unique: true })
+  @PrimaryGeneratedColumn('uuid')
   public id: string;
 
   @Column({ unique: true })

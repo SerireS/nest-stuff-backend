@@ -12,6 +12,7 @@ import { ChatService } from './shared/chat/chat.service';
 import { WelcomeDto } from './shared/welcome.dto';
 import { Inject } from '@nestjs/common';
 import { IChatServiceProvider } from '../primary-ports/chat.service.interface';
+import { SendMessageDto } from './shared/send-message.dto';
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -19,10 +20,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server;
   @SubscribeMessage('message')
   async handleChatEvent(
-    @MessageBody() message: string,
+    @MessageBody() message: SendMessageDto,
     @ConnectedSocket() client: Socket,
   ): Promise<void> {
-    const chatMessage = await this.chatService.newMessage(message, client.id);
+    const chatMessage = await this.chatService.newMessage(
+      message.message,
+      message.chatClientId,
+    );
     this.server.emit('newMessage', chatMessage);
   }
 

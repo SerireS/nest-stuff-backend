@@ -43,7 +43,6 @@ export class ChatService {
     const clientDb = await this.clientRepository.findOne({ nickname });
     if (!clientDb) {
       let client = this.clientRepository.create();
-      client.id = id;
       client.nickname = nickname;
       client = await this.clientRepository.save(client);
       return { id: '' + client.id, nickname: client.nickname };
